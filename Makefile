@@ -1,6 +1,6 @@
 CC = gcc
-CFLAG = -Wall -pedantic -ansi
-OBJ = spellcheck.o
+CFLAG = -Wall -pedantic -ansi -g
+OBJ = spellcheck.o check.o
 EXEC = spellcheck
 
 ${EXEC} : ${OBJ}
@@ -9,5 +9,8 @@ ${EXEC} : ${OBJ}
 spellcheck.o :
 	${CC} ${CFLAG} -c spellcheck.c
 
+check.o : check.h
+	${CC} ${CFLAG} -c check.c
+
 clean :
-	rm -rf spellcheck spellcheck.o 
+	rm -rf spellcheck ${OBJ} 
