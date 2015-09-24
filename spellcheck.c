@@ -13,7 +13,13 @@ typedef struct {
     int autoCorrect;
 } Settings;
 
-int getSettings(Settings*);
+typedef struct Word;
+typedef struct {
+    char word[50];
+    Word* next;
+};
+
+int getSettings(Settings* inSet);
 
 int main(int argc, char *argv[])
 {
@@ -32,7 +38,7 @@ int main(int argc, char *argv[])
         if (fp == NULL)
         {
             /* display system error message */
-            perror("Error opening input file");
+            perror("Unable to open input file");
         }
         else
         {
@@ -42,6 +48,19 @@ int main(int argc, char *argv[])
 
             char readWord[51]; /* given max 50 chars + \0 */
             int eof;
+
+            Word* head = (Word*)malloc(sizeof(Word));
+            Word* cur; 
+
+            head->next = (Word*)malloc(sizeof(Word));
+            cur = head->next;
+
+            cur->word = "test";
+
+            cur = head;
+            cur = head->next;
+
+            printf("%s", cur->word);
 
             do
             {
@@ -56,11 +75,17 @@ int main(int argc, char *argv[])
 
         fclose(fp);
 
-        if (getSettings(inSet) == 0)
+        if (getSettings(inSet) != 0)
+        {
+            perror("Error loading settings file.");
+        }
+        else
         {
             printf("%d\n", (*inSet).maxCorrection);
             printf("%s\n", (*inSet).dictionary);
             printf("%d\n", (*inSet).autoCorrect);
+
+            /* try loading in dictionary file */
         }
     }
 
