@@ -13,4 +13,9 @@ check.o : check.h
 	${CC} ${CFLAG} -c check.c
 
 clean :
-	rm -rf spellcheck ${OBJ} 
+	rm -rf spellcheck ${OBJ}
+	rm -rf package
+
+submission :
+	mkdir package;
+	tar -cvzf package/submission.tar.gz * .git* --exclude='package'
