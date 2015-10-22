@@ -2,6 +2,12 @@
 #include <string.h>
 #include "preferences.h"
 
+/**
+ * \brief Handles the reading of spellrc file
+ *
+ * @param pointer to Settings struct for storing values
+ * @return 1 if any errors occur. 0 for success
+ */
 int getSettings(Settings* inSet)
 {
     FILE *fp = fopen("spellrc", "r");

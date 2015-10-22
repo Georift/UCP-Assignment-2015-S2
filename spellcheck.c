@@ -8,13 +8,23 @@
 #include <string.h>
 #include "preferences.h"
 
-/*typedef struct Word;
-typedef struct {
+/**
+ * \brief Linked list node to hold words
+ */
+typedef struct Word {
+    /** String for holding the actual word */
     char word[50];
-    Word* next;
-};*/
+    /** pointer to the next struct in the linked list */
+    struct Word* next;
+} Word;
 
-
+/**
+ * \brief Starting point for the entire program.
+ *
+ * @param argc Count of parameters passed to the program + 1
+ * @param argv Argument vector array containing all parameters
+ * @return 1 when an error occurs. 0 for successful completion.
+ */
 int main(int argc, char *argv[])
 {
     if (argc != 2)
@@ -24,22 +34,21 @@ int main(int argc, char *argv[])
     }
     else
     {
-        /*FILE* fp = fopen(argv[1], "r");*/
-
+        FILE* fp = fopen(argv[1], "r");
         Settings* inSet = (Settings*)malloc(sizeof(Settings**));
 
-        /*
+        
         if (fp == NULL)
         {
             perror("Unable to open input file");
         }
         else
         {
-            * all good
-             * Start reading into a linked list *
-           * do a test printing out sample.test *
+            /* all good                           *
+             * Start reading into a linked list   *
+             * do a test printing out sample.test */
 
-            char readWord[51]; * given max 50 chars + \0 *
+            char readWord[51]; /* given max 50 chars + \0 */
             int eof;
 
             Word* head = (Word*)malloc(sizeof(Word));
@@ -48,12 +57,10 @@ int main(int argc, char *argv[])
             head->next = (Word*)malloc(sizeof(Word));
             cur = head->next;
 
-            cur->word = "test";
+            strcpy(cur->word, "test");
 
             cur = head;
             cur = head->next;
-
-            printf("%s", cur->word);
 
             do
             {
@@ -61,13 +68,13 @@ int main(int argc, char *argv[])
 
                 if (eof != EOF)
                 {
-                    *printf("'%s'\n", readWord);*
+                    printf("'%s'\n", readWord);
                 }
             }while(eof != EOF);
+            fclose(fp);
         }
 
-        fclose(fp);
-        */
+        
         if (getSettings(inSet) != 0)
         {
             perror("Error loading settings file.");

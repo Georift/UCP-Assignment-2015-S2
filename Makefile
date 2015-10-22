@@ -18,6 +18,11 @@ check.o : check.h
 clean :
 	rm -rf spellcheck ${OBJ}
 	rm -rf package
+	rm -rf docs
+
+docs :
+	doxygen Doxyfile
+	google-chrome docs/html/index.html
 
 submission :
 	mkdir package;
