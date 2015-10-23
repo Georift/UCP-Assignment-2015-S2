@@ -37,57 +37,59 @@ int main(int argc, char *argv[])
         FILE* fp = fopen(argv[1], "r");
         Settings* inSet = (Settings*)malloc(sizeof(Settings**));
 
-        
-        if (fp == NULL)
-        {
-            perror("Unable to open input file");
-        }
-        else
-        {
-            /* all good                           *
-             * Start reading into a linked list   *
-             * do a test printing out sample.test */
-
-            char readWord[51]; /* given max 50 chars + \0 */
-            int eof;
-
-            Word* head = (Word*)malloc(sizeof(Word));
-            Word* cur; 
-
-            head->next = (Word*)malloc(sizeof(Word));
-            cur = head->next;
-
-            strcpy(cur->word, "test");
-
-            cur = head;
-            cur = head->next;
-
-            do
-            {
-                eof = fscanf(fp, "%s", readWord);
-
-                if (eof != EOF)
-                {
-                    printf("'%s'\n", readWord);
-                }
-            }while(eof != EOF);
-            fclose(fp);
-        }
-
-        
         if (getSettings(inSet) != 0)
         {
-            perror("Error loading settings file.");
+            /* using printf as opposed to perror as it can 
+             * fail even if the file reads sucessfully */
+            printf("Error loading/parsing spellrc.\n");
         }
         else
         {
-            printf("%d\n", (*inSet).maxCorrection);
-            printf("%s\n", (*inSet).dictionary);
-            printf("%d\n", (*inSet).autoCorrect);
+            /* have properly loaded the settings file
+             * we can now continute with the spellcheck */
+            #ifdef DEBUG
+                printf("%d\n", (*inSet).maxCorrection);
+                printf("%s\n", (*inSet).dictionary);
+                printf("%d\n", (*inSet).autoCorrect);
+            #endif
 
             /* try loading in dictionary file */
+            if (fp == NULL)
+            {
+                perror("Unable to open input file");
+            }
+            else
+            {
+                /* all good                           *
+                 * Start reading into a linked list   *
+                 * do a test printing out sample.test */
+
+                char readWord[51]; /* given max 50 chars + \0 */
+                int eof;
+
+                Word* head = (Word*)malloc(sizeof(Word));
+                Word* cur; 
+
+                head->next = (Word*)malloc(sizeof(Word));
+                cur = head->next;
+
+                strcpy(cur->word, "test");
+
+                cur = head;
+                cur = head->next;
+
+                do
+                {
+                    eof = fscanf(fp, "%s", readWord);
+
+                    if (eof != EOF)
+                    {
+                        printf("'%s'\n", readWord);
+                    }
+                }while(eof != EOF);
+                fclose(fp);
+            }
         }
     }
-
     return 0;
 }
