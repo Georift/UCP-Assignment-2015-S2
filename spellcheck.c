@@ -8,6 +8,7 @@
 #include <string.h>
 #include "preferences.h"
 #include "spellcheck.h"
+#include "check.h"
 
 /* 50 + 1 for the null terminator */
 #define WORD_LEN 51
@@ -22,10 +23,13 @@ typedef struct Word {
     struct Word* next;
 } Word;
 
+/*typedef int (*ActionFunc)(char* word, char* suggestion);*/
+
 int loadFile(Word* head, char* filename);
 void listToArray(Word* head, char* array[], int arrLen);
 void freeLinkedList(Word* head);
 void freeWordArray(char* array[], int arrLen);
+int decision(char* word, char* suggestion);
 
 /**
  * \brief Starting point for the entire program.
@@ -43,7 +47,8 @@ int main(int argc, char *argv[])
     }
     else
     {
-        Settings* inSet = (Settings*)malloc(sizeof(Settings**));
+        Settings* inSet = NULL;
+        inSet = (Settings*)malloc(sizeof(Settings**));
 
         if (getSettings(inSet) != 0)
         {
@@ -86,60 +91,163 @@ int main(int argc, char *argv[])
 
                 /* convert the linked list into a dynamically 
                  * allocated array */
-                
                 dictArray = (char**)malloc(sizeof(char*) * dictCount);
                 listToArray(dictHead, dictArray, dictCount);
+ 
                 /* now we are done with the linked list free it */
                 freeLinkedList(dictHead);
                 dictHead = NULL;
 
+                /* load in the user file */
+                userHead = (Word*)malloc(sizeof(Word));
+                userCount = loadFile(userHead, argv[1]);
+
+                /* ensure no error */
+                if (userCount != -1)
+                {
+                    ActionFunc choice;
+                    printf("Loaded %d words from %s\n", userCount, argv[1]);
+
+                    /* convert the linked list into a dynamically
+                     * allocated array */
+                    userArray = (char**)malloc(sizeof(char*) * userCount);
+                    listToArray(userHead, userArray, userCount);
+
+                    /* now we are done with the linked list free it */
+                    freeLinkedList(userHead);
+                    userHead = NULL;
+
+                    /* ALL IS WELL WE HAVE BOTH OUR ARRAYS */
+
+                    /* this is where we want the callback */
+                    choice = &decision;
+
+                    check(userArray, userCount, dictArray, dictCount,
+                            inSet->maxCorrection, choice);
+
+                    #ifdef DEBUG
+                        for (ll = 0; ll < userCount; ll++)
+                        {
+                            printf("'%s'\n", userArray[ll]);
+                        }
+                    #endif 
+
+                    /* ALL THE WORK IS FINISHED START OUR CLEANUP */
+
+                    /*freeWordArray(userArray, userCount);*/
+                    freeWordArray(userArray, userCount);
+                    free(userArray);
+                    userArray = NULL;
+                }
+                else
+                {
+                    /* an error occured during the loading of the user file */
+                    printf("An error occured while loading the user file.");
+                }
+               
                 /* free the array as we are no loner using it */
                 freeWordArray(dictArray, dictCount);
                 free(dictArray);
                 dictArray = NULL;
-
-                /*freeWordArray(dictArray, dictCount);*/
             }
             else
             {
                 /* an error occured during the loading of the dictionary */
                 printf("An error occured while loading the dictionary");
             } 
-
-            /* load in the user file */
-            userHead = (Word*)malloc(sizeof(Word));
-            userCount = loadFile(userHead, argv[1]);
-
-            /* ensure no error */
-            if (userCount != -1)
-            {
-                printf("Loaded %d words from %s\n", userCount, argv[1]);
-
-                /* convert the linked list into a dynamically
-                 * allocated array */
-                userArray = (char**)malloc(sizeof(char*) * userCount);
-                listToArray(userHead, userArray, userCount);
-
-                /* now we are done with the linked list free it */
-                freeLinkedList(userHead);
-                dictHead = NULL;
-
-                /*freeWordArray(userArray, userCount);*/
-                freeWordArray(userArray, userCount);
-                free(userArray);
-                userArray = NULL;
-            }
-            else
-            {
-                /* an error occured during the loading of the user file */
-                printf("An error occured while loading the user file.");
-            }
-
         }
-
         free(inSet);
     }
     return 0;
+}
+
+/* this is the callback function for check()
+ * it will return true should he word be corrected
+ * and false for words that shouldn't be corrected. */
+int decision(char* word, char* suggestion)
+{
+    /* given the deffinition in the assignment specification
+     * "number of single character edits required to transform
+     * the word" I am assuming that these edits are simply mods
+     * and not additions nor deletions. */
+
+    /* assume that we don't correct */
+    int doCorrection = 0;
+
+    Settings* inSet = (Settings*)malloc(sizeof(Settings));
+    getSettings(inSet);
+    
+    /* check if we are allowed to auto correct */
+    if (inSet->autoCorrect == 1)
+    {
+        int distance = 0;
+        int ii;
+        int maxSize = 0;
+
+        /* for the source word check corresponding characters */
+        if (suggestion != NULL)
+        {
+            /* pick the larger of the two words. */
+            maxSize = strlen(word);
+            if (maxSize < strlen(suggestion))
+            {
+                maxSize = strlen(suggestion);
+            }
+
+            for (ii = 0; ii < maxSize; ii++)
+            {
+                /* if we have to change it, the distance is incremented */
+                if (word[ii] != suggestion[ii])
+                {
+                    distance++;
+                }
+            }
+        }
+        else
+        {
+            distance = strlen(word);
+        }
+        printf("word: %s \tsugg: %s \t dist: %d\n", 
+                        word, suggestion, distance);
+        /* show the options: */
+        if (distance <= inSet->maxCorrection)
+        {
+            doCorrection = 1;
+        }
+        /* else ... not needed due to assumption */ 
+    }
+    else
+    {
+        /* for looping until valid */
+        int valid = FALSE;
+        char answer;
+        /* we aren't allowed to auto correct. Prompt */
+        printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
+        while (valid == FALSE)
+        {
+            /* only taking chars */
+            scanf("%c", &answer);
+
+            /* althogh we wanted lower case for sake of usability
+             * accept upper case characters as well */
+            switch(answer)
+            {
+                case 'y': case 'Y':
+                    doCorrection = 1;
+                    valid = TRUE;
+                    break;
+                case 'n': case 'N':
+                    doCorrection = 0;
+                    valid = TRUE;
+                    break;
+                default:
+                    /* it will loop as valid remains false */
+                    printf("Invalid input.\n");
+            }
+        }
+    }
+
+    return doCorrection;
 }
 
 /*

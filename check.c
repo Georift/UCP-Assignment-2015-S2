@@ -166,7 +166,7 @@ static int inTrieInsert(TrieNode* node, char* word, char* suggestion, int maxEdi
 static int inTrieTranspose(TrieNode* node, char* word, char* suggestion, int maxEdits) 
 {
     int result = FALSE;
-    TrieNode* nextNode = node->children[CH_INDEX(word[1])];
+    /*TrieNode* nextNode = node->children[CH_INDEX(word[1])];
     
     if(IS_ASCII((int)word[1]) && nextNode != NULL)
     {
@@ -177,7 +177,22 @@ static int inTrieTranspose(TrieNode* node, char* word, char* suggestion, int max
             suggestion[1] = word[0];
             result = inTrie(nextNextNode, word + 2, suggestion + 2, maxEdits);
         }
+    }*/
+    if(IS_ASCII((int)word[1]))
+    {
+        TrieNode* nextNode = node->children[CH_INDEX(word[1])];
+        if(nextNode != NULL) 
+        {
+            TrieNode* nextNextNode = nextNode->children[CH_INDEX(word[0])];
+            if(nextNextNode != NULL)
+            {
+                suggestion[0] = word[1];
+                suggestion[1] = word[0];
+                result = inTrie(nextNextNode, word + 2, suggestion + 2, maxEdits);
+            }
+        }
     }
+    
     return result;
 }
 
