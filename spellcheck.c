@@ -24,6 +24,8 @@ typedef struct Word {
 
 int loadFile(Word* head, char* filename);
 void listToArray(Word* head, char* array[], int arrLen);
+void freeLinkedList(Word* head);
+void freeWordArray(char* array[], int arrLen);
 
 /**
  * \brief Starting point for the entire program.
@@ -84,7 +86,19 @@ int main(int argc, char *argv[])
 
                 /* convert the linked list into a dynamically 
                  * allocated array */
+                
+                dictArray = (char**)malloc(sizeof(char*) * dictCount);
                 listToArray(dictHead, dictArray, dictCount);
+                /* now we are done with the linked list free it */
+                freeLinkedList(dictHead);
+                dictHead = NULL;
+
+                /* free the array as we are no loner using it */
+                freeWordArray(dictArray, dictCount);
+                free(dictArray);
+                dictArray = NULL;
+
+                /*freeWordArray(dictArray, dictCount);*/
             }
             else
             {
@@ -103,7 +117,17 @@ int main(int argc, char *argv[])
 
                 /* convert the linked list into a dynamically
                  * allocated array */
+                userArray = (char**)malloc(sizeof(char*) * userCount);
                 listToArray(userHead, userArray, userCount);
+
+                /* now we are done with the linked list free it */
+                freeLinkedList(userHead);
+                dictHead = NULL;
+
+                /*freeWordArray(userArray, userCount);*/
+                freeWordArray(userArray, userCount);
+                free(userArray);
+                userArray = NULL;
             }
             else
             {
@@ -112,6 +136,8 @@ int main(int argc, char *argv[])
             }
 
         }
+
+        free(inSet);
     }
     return 0;
 }
@@ -135,6 +161,7 @@ int loadFile(Word* head, char* filename)
         count = -1;
     }
     else
+        
     {
         char readWord[51]; /* given max 50 chars + \0 */
         int eof;
@@ -192,10 +219,6 @@ void listToArray(Word* head, char* array[], int arrLen)
     Word* cur = head;
     int ii;
 
-    /* the arrays are passed in just as pointer
-     * malloc it all first */
-    array = (char**)malloc(sizeof(char*) * arrLen);
-    
     /* for each of the elements
      * jump to the next node in the list
      * copy it into the array */
@@ -206,3 +229,28 @@ void listToArray(Word* head, char* array[], int arrLen)
         strcpy(array[ii], cur->word);
     }
 }
+
+
+void freeWordArray(char* array[], int arrLen)
+{
+    int ii;
+    for (ii = 0; ii < arrLen; ii++)
+    {
+        free(array[ii]);
+    }
+}
+
+void freeLinkedList(Word* head)
+{
+    Word* cur = head;
+    Word* toFree;
+
+    cur = cur->next;
+    while (cur != NULL)
+    {
+        toFree = cur;
+        cur = cur->next;
+        free(toFree);
+    }
+    free(head);
+}    
