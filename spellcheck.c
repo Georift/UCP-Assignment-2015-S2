@@ -9,6 +9,9 @@
 #include "preferences.h"
 #include "spellcheck.h"
 
+/* 50 + 1 for the null terminator */
+#define WORD_LEN 51
+
 /**
  * \brief Linked list node to hold words
  */
@@ -20,6 +23,7 @@ typedef struct Word {
 } Word;
 
 int loadFile(Word* head, char* filename);
+void listToArray(Word* head, char* array[], int arrLen);
 
 /**
  * \brief Starting point for the entire program.
@@ -57,8 +61,8 @@ int main(int argc, char *argv[])
             /* for longer term storage of our data 
              * we will still make use of the previously
              * assigned xxxxCount variables */
-            char** dictArray;
-            char** userArray;
+            char** dictArray = NULL;
+            char** userArray = NULL;
 
             /* have properly loaded the settings file
              * we can now continute with the spellcheck */
@@ -75,55 +79,37 @@ int main(int argc, char *argv[])
             /* ensure no error */
             if (dictCount != -1)
             {
-                Word* cur = dictHead;
-                int ii;
                 printf("Loaded %d words from %s\n", dictCount, 
                                             inSet->dictionary);
 
-                /* start allocating an array for the dictionary file. */
-                dictArray = (char**)malloc(sizeof(char*)*dictCount);
-
-                /* for each element malloc it and add out word */
-                for (ii = 0; ii < dictCount; ii++)
-                {
-                    cur = cur->next;
-                    dictArray[ii] = (char*)malloc(sizeof(char)*51);
-                    strcpy(dictArray[ii], cur->word);
-                }
-
-                userHead = (Word*)malloc(sizeof(Word));
-                userCount = loadFile(userHead, argv[1]);
-
-                /* ensure no error */
-                if (userCount != -1)
-                {
-                    int jj;
-                    cur = userHead;
-                    printf("Loaded %d words from %s\n", userCount, argv[1]);
-
-                    /* start allocating an array for the user file */ 
-                    userArray = (char**)malloc(sizeof(char*)*userCount);
-
-                    for (jj = 0; jj < userCount; jj++)
-                    {
-                        cur = cur->next;
-                        userArray[jj] = (char*)malloc(sizeof(char)*51);
-                        strcpy(userArray[jj], cur->word);
-                    }
-
-                }
-                else
-                {
-                    /* an error occured during the loading of the user file */
-                }
+                /* convert the linked list into a dynamically 
+                 * allocated array */
+                listToArray(dictHead, dictArray, dictCount);
             }
             else
             {
-               /* an error occured during the loading of the dictionary */
-
+                /* an error occured during the loading of the dictionary */
+                printf("An error occured while loading the dictionary");
             } 
 
-            
+            /* load in the user file */
+            userHead = (Word*)malloc(sizeof(Word));
+            userCount = loadFile(userHead, argv[1]);
+
+            /* ensure no error */
+            if (userCount != -1)
+            {
+                printf("Loaded %d words from %s\n", userCount, argv[1]);
+
+                /* convert the linked list into a dynamically
+                 * allocated array */
+                listToArray(userHead, userArray, userCount);
+            }
+            else
+            {
+                /* an error occured during the loading of the user file */
+                printf("An error occured while loading the user file.");
+            }
 
         }
     }
@@ -195,4 +181,28 @@ int loadFile(Word* head, char* filename)
     }
 
     return count;
+}
+
+/* given a link list head it will loop through
+ * and place it into a dynmaically allocated array
+ * the link list must contain atleast arrLen elements
+ * and the dynamic array must be atleast arrLen long */
+void listToArray(Word* head, char* array[], int arrLen)
+{
+    Word* cur = head;
+    int ii;
+
+    /* the arrays are passed in just as pointer
+     * malloc it all first */
+    array = (char**)malloc(sizeof(char*) * arrLen);
+    
+    /* for each of the elements
+     * jump to the next node in the list
+     * copy it into the array */
+    for (ii = 0; ii < arrLen; ii++)
+    {
+        cur = cur->next;
+        array[ii] = (char*)malloc(sizeof(char)*WORD_LEN);
+        strcpy(array[ii], cur->word);
+    }
 }
