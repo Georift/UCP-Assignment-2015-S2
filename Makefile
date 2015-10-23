@@ -1,5 +1,5 @@
 CC = gcc
-CFLAG = -Wall -pedantic -ansi 
+CFLAG = -Wall -pedantic -ansi
 OBJ = spellcheck.o check.o preferences.o
 EXEC = spellcheck
 

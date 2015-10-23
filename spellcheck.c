@@ -47,9 +47,19 @@ int main(int argc, char *argv[])
         }
         else
         {
-            int count;
+            /* for storing our data in their inital
+             * linked list form */
             Word* dictHead;
+            int dictCount;
             Word* userHead;
+            int userCount;
+
+            /* for longer term storage of our data 
+             * we will still make use of the previously
+             * assigned xxxxCount variables */
+            char** dictArray;
+            char** userArray;
+
             /* have properly loaded the settings file
              * we can now continute with the spellcheck */
             #ifdef DEBUG
@@ -60,20 +70,60 @@ int main(int argc, char *argv[])
 
             /* loading in dictionary file */
             dictHead = (Word*)malloc(sizeof(Word));
-            count = loadFile(dictHead, inSet->dictionary);
+            dictCount = loadFile(dictHead, inSet->dictionary);
             
-            if (count != -1)
+            /* ensure no error */
+            if (dictCount != -1)
             {
-                printf("Loaded %d words from %s\n", count, inSet->dictionary);
+                Word* cur = dictHead;
+                int ii;
+                printf("Loaded %d words from %s\n", dictCount, 
+                                            inSet->dictionary);
+
+                /* start allocating an array for the dictionary file. */
+                dictArray = (char**)malloc(sizeof(char*)*dictCount);
+
+                /* for each element malloc it and add out word */
+                for (ii = 0; ii < dictCount; ii++)
+                {
+                    cur = cur->next;
+                    dictArray[ii] = (char*)malloc(sizeof(char)*51);
+                    strcpy(dictArray[ii], cur->word);
+                }
+
+                userHead = (Word*)malloc(sizeof(Word));
+                userCount = loadFile(userHead, argv[1]);
+
+                /* ensure no error */
+                if (userCount != -1)
+                {
+                    int jj;
+                    cur = userHead;
+                    printf("Loaded %d words from %s\n", userCount, argv[1]);
+
+                    /* start allocating an array for the user file */ 
+                    userArray = (char**)malloc(sizeof(char*)*userCount);
+
+                    for (jj = 0; jj < userCount; jj++)
+                    {
+                        cur = cur->next;
+                        userArray[jj] = (char*)malloc(sizeof(char)*51);
+                        strcpy(userArray[jj], cur->word);
+                    }
+
+                }
+                else
+                {
+                    /* an error occured during the loading of the user file */
+                }
+            }
+            else
+            {
+               /* an error occured during the loading of the dictionary */
+
             } 
 
-            userHead = (Word*)malloc(sizeof(Word));
-            count = loadFile(userHead, argv[1]);
-
-            if (count != -1)
-            {
-                printf("Loaded %d words from %s\n", count, argv[1]);
-            }
+            
 
         }
     }
@@ -90,6 +140,8 @@ int loadFile(Word* head, char* filename)
 
     if (fp == NULL)
     {
+        /* give perror doesn't support similar formats
+         * to printf. Make a string and concat filename */
         char errorStr[50] = "Unable to open file ";
         strcat(errorStr, filename);
         perror(errorStr);
