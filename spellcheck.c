@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "preferences.h"
+#include "spellcheck.h"
 
 /**
  * \brief Linked list node to hold words
@@ -17,6 +18,8 @@ typedef struct Word {
     /** pointer to the next struct in the linked list */
     struct Word* next;
 } Word;
+
+int loadFile(Word* head, char* filename);
 
 /**
  * \brief Starting point for the entire program.
@@ -34,7 +37,6 @@ int main(int argc, char *argv[])
     }
     else
     {
-        FILE* fp = fopen(argv[1], "r");
         Settings* inSet = (Settings*)malloc(sizeof(Settings**));
 
         if (getSettings(inSet) != 0)
@@ -45,51 +47,100 @@ int main(int argc, char *argv[])
         }
         else
         {
+            int count;
+            Word* dictHead;
+            Word* userHead;
             /* have properly loaded the settings file
              * we can now continute with the spellcheck */
             #ifdef DEBUG
-                printf("%d\n", (*inSet).maxCorrection);
-                printf("%s\n", (*inSet).dictionary);
-                printf("%d\n", (*inSet).autoCorrect);
+                printf("%d\n", inSet->maxCorrection);
+                printf("%s\n", inSet->dictionary);
+                printf("%d\n", inSet->autoCorrect);
             #endif
 
-            /* try loading in dictionary file */
-            if (fp == NULL)
+            /* loading in dictionary file */
+            dictHead = (Word*)malloc(sizeof(Word));
+            count = loadFile(dictHead, inSet->dictionary);
+            
+            if (count != -1)
             {
-                perror("Unable to open input file");
-            }
-            else
+                printf("Loaded %d words from %s\n", count, inSet->dictionary);
+            } 
+
+            userHead = (Word*)malloc(sizeof(Word));
+            count = loadFile(userHead, argv[1]);
+
+            if (count != -1)
             {
-                /* all good                           *
-                 * Start reading into a linked list   *
-                 * do a test printing out sample.test */
-
-                char readWord[51]; /* given max 50 chars + \0 */
-                int eof;
-
-                Word* head = (Word*)malloc(sizeof(Word));
-                Word* cur; 
-
-                head->next = (Word*)malloc(sizeof(Word));
-                cur = head->next;
-
-                strcpy(cur->word, "test");
-
-                cur = head;
-                cur = head->next;
-
-                do
-                {
-                    eof = fscanf(fp, "%s", readWord);
-
-                    if (eof != EOF)
-                    {
-                        printf("'%s'\n", readWord);
-                    }
-                }while(eof != EOF);
-                fclose(fp);
+                printf("Loaded %d words from %s\n", count, argv[1]);
             }
+
         }
     }
     return 0;
+}
+
+/*
+ * will output -1 if failed to run correctly
+ */
+int loadFile(Word* head, char* filename)
+{
+    FILE* fp = fopen(filename, "r"); 
+    int count = 0;
+
+    if (fp == NULL)
+    {
+        char errorStr[50] = "Unable to open file ";
+        strcat(errorStr, filename);
+        perror(errorStr);
+
+        count = -1;
+    }
+    else
+    {
+        char readWord[51]; /* given max 50 chars + \0 */
+        int eof;
+
+        Word* cur; 
+        cur = head; /* head will not contain any words */
+
+        /* so we know how much to allocate later */
+        count = 0;
+        do
+        {
+            /* try reading the next word, fscanf will 
+             * handle any amount of whitespace*/
+            eof = fscanf(fp, "%s", readWord);
+
+            /* only create the next node if valid read */
+            if (eof != EOF)
+            {
+                /* allocate out next node in the list */
+                cur->next = (Word*)malloc(sizeof(Word));
+                cur = cur->next;
+
+                /* make sure we have the end marker */
+                cur->next = NULL;
+
+                /* save our word */
+                strcpy(cur->word, readWord);
+
+                count++;
+            }
+        }while(eof != EOF);
+        fclose(fp);
+
+        #ifdef DEBUG
+            /* print out the contents of the list */
+            printf("DEBUG loadFile from %s\n", filename);
+            cur = head;
+            do
+            {
+                cur = cur->next;
+                printf("'%s'\n", cur->word);
+            }while (cur->next != NULL);
+        #endif
+    }
+
+    return count;
 }
