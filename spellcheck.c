@@ -2,12 +2,7 @@
  *  UCP Assignment
  *  Tim Cochrane (17766247)
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "spellcheck.h"
-#include "preferences.h"
-#include "check.h"
 
 /**
  * \brief Starting point for the entire program.
@@ -94,8 +89,18 @@ int main(int argc, char *argv[])
                     freeLinkedList(userHead);
                     userHead = NULL;
 
-                    /* this is where we want the check to call us */
-                    choice = &decision;
+                    /* this is where we want the check to call us
+                     * we will change it depending on set autocorrect
+                     * if autocorrect = yes then autoCorrect(..)
+                     * if autocorrect = no  then decision(..) */
+                    if (inSet->autoCorrect == TRUE)
+                    {
+                        choice = &autoCorrect;
+                    }
+                    else
+                    {
+                        choice = &decision;
+                    }
 
                     /* do the actual checking */
                     check(userArray, userCount, dictArray, dictCount,
@@ -141,58 +146,56 @@ int main(int argc, char *argv[])
  * and false for words that shouldn't be corrected. */
 int decision(char* word, char* suggestion)
 {
-    /* given the deffinition in the assignment specification
-     * "number of single character edits required to transform
-     * the word" I am assuming that these edits are simply mods
-     * and not additions nor deletions. */
+    /* we have autocorrect = no in spellrc
+     * this means we have to ask to user if they
+     * would like us to auto correct each word */
 
     /* assume that we don't correct */
     int doCorrection = 0;
 
-    Settings* inSet = (Settings*)malloc(sizeof(Settings));
-    getSettings(inSet);
-    
-    /* check if we are allowed to auto correct */
-    if (inSet->autoCorrect == 1)
-    {
-        doCorrection = 1;
-    }
-    else
-    {
-        /* for looping until valid */
-        int valid = FALSE;
-        char answer;
-        /* we aren't allowed to auto correct. Prompt */
-        printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
-        while (valid == FALSE)
-        {
-            /* only taking chars */
-            scanf("%c", &answer);
+    /* for looping until valid */
+    int valid = FALSE;
+    char answer;
 
-            /* although we wanted lower case for sake of usability
-             * accept upper case characters as well */
-            switch(answer)
-            {
-                case 'y': case 'Y':
-                    doCorrection = 1;
-                    valid = TRUE;
-                    break;
-                case 'n': case 'N':
-                    doCorrection = 0;
-                    valid = TRUE;
-                    break;
-                case '\n':
-                    /* remove dangeling \n char */
-                    break;
-                default:
-                    /* it will loop as valid remains false */
-                    printf("Invalid input.\nPlease try again: ");
-            }
+    /* we aren't allowed to auto correct. Prompt */
+    printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
+    while (valid == FALSE)
+    {
+        /* TODO maybe read as string then pull char to
+         * to prevent dangeling chars */
+
+        /* only taking chars */
+        scanf("%c", &answer);
+
+        /* although we wanted lower case for sake of usability
+         * accept upper case characters as well */
+        switch(answer)
+        {
+            case 'y': case 'Y':
+                doCorrection = 1;
+                valid = TRUE;
+                break;
+            case 'n': case 'N':
+                doCorrection = 0;
+                valid = TRUE;
+                break;
+            case '\n':
+                /* remove dangeling \n char */
+                break;
+            default:
+                /* it will loop as valid remains false */
+                printf("Invalid input.\nPlease try again: ");
         }
     }
-
-    free(inSet); /* TODO wasteful mem usage */
     return doCorrection;
+}
+
+/* this function will be called if in spellrc
+ * autocorrect = yes. No logic just tell check()
+ * we trust it's judgement. */
+int autoCorrect(char* word, char* suggestion)
+{
+    return 1;
 }
 
 /* this function will output our word array to the filename
@@ -209,6 +212,7 @@ void writeFile(char* array[], int arrLen, char* filename)
     }
     else
     {
+        /* for each element of our array output */
         for (ii = 0; ii < arrLen; ii++)
         {
             fprintf(fp, "%s\n", array[ii]);
@@ -270,18 +274,7 @@ int loadFile(Word* head, char* filename)
             }
         }while(eof != EOF);
         fclose(fp);
-
-        #ifdef DEBUG2
-            /* print out the contents of the list */
-            printf("DEBUG loadFile from %s\n", filename);
-            cur = head;
-            do
-            {
-                cur = cur->next;
-                printf("'%s'\n", cur->word);
-            }while (cur->next != NULL);
-        #endif
-    }
+      }
 
     return count;
 }

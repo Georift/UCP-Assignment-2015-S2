@@ -10,7 +10,7 @@ debug : ${EXEC}
 ${EXEC} : ${OBJ}
 	${CC} ${CFLAG} ${OBJ} -o ${EXEC}
 
-spellcheck.o : spellcheck.h
+spellcheck.o : spellcheck.h preferences.h check.h
 	${CC} ${CFLAG} -c spellcheck.c
 
 preferences.c : preferences.h spellcheck.h

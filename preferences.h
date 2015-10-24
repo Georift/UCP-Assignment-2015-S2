@@ -1,5 +1,10 @@
 #ifndef PREFERENCES_H
 #define PREFERENCES_H
+
+#include <stdio.h>
+#include <string.h>
+#include "spellcheck.h"
+
 /**
  * \brief used to store the spellrc configuration
  */

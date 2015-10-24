@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <string.h>
 #include "preferences.h"
-#include "spellcheck.h"
 
 /**
  * \brief Handles the reading of spellrc file
