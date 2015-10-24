@@ -30,6 +30,7 @@ void listToArray(Word* head, char* array[], int arrLen);
 void freeLinkedList(Word* head);
 void freeWordArray(char* array[], int arrLen);
 int decision(char* word, char* suggestion);
+void writeFile(char* array[], int arrLen, char* filename);
 
 /**
  * \brief Starting point for the entire program.
@@ -127,8 +128,7 @@ int main(int argc, char *argv[])
                             inSet->maxCorrection, choice);
 
                     /* now our userArray contains the corrected words */
-                    
-
+                    writeFile(userArray, userCount, strcat(argv[1], "_new"));
 
 
                     /* ALL THE WORK IS FINISHED START OUR CLEANUP */
@@ -159,6 +159,7 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
+
 
 /* this is the callback function for check()
  * it will return true should he word be corrected
@@ -217,6 +218,29 @@ int decision(char* word, char* suggestion)
 
     free(inSet); /* TODO wasteful mem usage */
     return doCorrection;
+}
+
+/* this function will output our word array to the filename
+ * specified. It will only output words seperated by a space
+ * as we are not required to preserve formatting */
+void writeFile(char* array[], int arrLen, char* filename)
+{
+    FILE* fp = fopen(filename, "w");
+    int ii;
+
+    if (fp == NULL)
+    {
+        perror("Unable to write to input file");
+    }
+    else
+    {
+        for (ii = 0; ii < arrLen; ii++)
+        {
+            fprintf(fp, "%s ", array[ii]);
+        }
+
+        fclose(fp);
+    }
 }
 
 /*
