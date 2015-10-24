@@ -1,5 +1,5 @@
-#ifndef PREFERENCES_H
-#define PREFERENCES_H
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
 #include <stdio.h>
 #include <string.h>

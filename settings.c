@@ -1,4 +1,4 @@
-#include "preferences.h"
+#include "settings.h"
 
 /**
  * \brief Handles the reading of spellrc file

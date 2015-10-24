@@ -20,8 +20,9 @@ int main(int argc, char *argv[])
     }
     else
     {
+        char filename[30];
         Settings* inSet = (Settings*)malloc(sizeof(Settings));
-
+        
         if (getSettings(inSet) != 0)
         {
             /* using printf as opposed to perror as it can 
@@ -42,6 +43,8 @@ int main(int argc, char *argv[])
              * assigned xxxxCount variables */
             char** dictArray = NULL;
             char** userArray = NULL;
+
+            strcpy(filename, argv[1]);
 
             /* have properly loaded the settings file
              * we can now continute with the spellcheck */
@@ -72,13 +75,13 @@ int main(int argc, char *argv[])
 
                 /* load in the user file */
                 userHead = (Word*)malloc(sizeof(Word));
-                userCount = loadFile(userHead, argv[1]);
+                userCount = loadFile(userHead, filename);
 
                 /* ensure no error */
                 if (userCount != -1)
                 {
                     ActionFunc choice;
-                    printf("Loaded %d words from %s\n", userCount, argv[1]);
+                    printf("Loaded %d words from %s\n", userCount, filename);
 
                     /* convert the linked list into a dynamically
                      * allocated array */
@@ -107,8 +110,8 @@ int main(int argc, char *argv[])
                             inSet->maxCorrection, choice);
 
                     /* now our userArray contains the corrected words */
-                    remove(argv[1]); /* remove file before writing */
-                    writeFile(userArray, userCount, argv[1]);
+                    remove(filename); /* remove file before writing */
+                    writeFile(userArray, userCount, filename);
 
 
                     /* ALL THE WORK IS FINISHED START OUR CLEANUP */
@@ -157,34 +160,39 @@ int decision(char* word, char* suggestion)
     int valid = FALSE;
     char answer;
 
-    /* we aren't allowed to auto correct. Prompt */
-    printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
-    while (valid == FALSE)
+    /* obviously we don't want the user to have to
+     * pick between their word and NULL. */
+    if (suggestion != NULL)
     {
-        /* TODO maybe read as string then pull char to
-         * to prevent dangeling chars */
-
-        /* only taking chars */
-        scanf("%c", &answer);
-
-        /* although we wanted lower case for sake of usability
-         * accept upper case characters as well */
-        switch(answer)
+        /* we aren't allowed to auto correct. Prompt */
+        printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
+        while (valid == FALSE)
         {
-            case 'y': case 'Y':
-                doCorrection = 1;
-                valid = TRUE;
-                break;
-            case 'n': case 'N':
-                doCorrection = 0;
-                valid = TRUE;
-                break;
-            case '\n':
-                /* remove dangeling \n char */
-                break;
-            default:
-                /* it will loop as valid remains false */
-                printf("Invalid input.\nPlease try again: ");
+            /* TODO maybe read as string then pull char to
+             * to prevent dangeling chars */
+
+            /* only taking chars */
+            scanf("%c", &answer);
+
+            /* although we wanted lower case for sake of usability
+             * accept upper case characters as well */
+            switch(answer)
+            {
+                case 'y': case 'Y':
+                    doCorrection = 1;
+                    valid = TRUE;
+                    break;
+                case 'n': case 'N':
+                    doCorrection = 0;
+                    valid = TRUE;
+                    break;
+                case '\n':
+                    /* remove dangeling \n char */
+                    break;
+                default:
+                    /* it will loop as valid remains false */
+                    printf("Invalid input.\nPlease try again: ");
+            }
         }
     }
     return doCorrection;

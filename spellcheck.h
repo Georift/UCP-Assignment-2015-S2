@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "preferences.h"
+#include "settings.h"
 #include "check.h"
 
 #define FALSE 0

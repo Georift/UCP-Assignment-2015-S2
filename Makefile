@@ -1,6 +1,6 @@
 CC = gcc
 CFLAG = -Wall -pedantic -ansi
-OBJ = spellcheck.o check.o preferences.o
+OBJ = spellcheck.o check.o settings.o
 EXEC = spellcheck
 
 all : ${EXEC}
@@ -10,11 +10,11 @@ debug : ${EXEC}
 ${EXEC} : ${OBJ}
 	${CC} ${CFLAG} ${OBJ} -o ${EXEC}
 
-spellcheck.o : spellcheck.h preferences.h check.h
+spellcheck.o : spellcheck.h settings.h check.h
 	${CC} ${CFLAG} -c spellcheck.c
 
-preferences.c : preferences.h spellcheck.h
-	${CC} ${CFLAG} -c preferences.c
+settings.c : settings.h spellcheck.h
+	${CC} ${CFLAG} -c settings.c
 
 check.o : check.h
 	${CC} ${CFLAG} -c check.c
