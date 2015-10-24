@@ -55,12 +55,12 @@ int getSettings(Settings* inSet)
                     if (strcmp(value, "yes") == 0)
                     {
                         assigned[2] = TRUE;
-                        result = 1;
+                        result = TRUE;
                     }
                     else if (strcmp(value, "no") == 0)
                     {
                         assigned[2] = TRUE;
-                        result = 0;
+                        result = FALSE;
                     }
                     else
                     {
@@ -78,27 +78,29 @@ int getSettings(Settings* inSet)
 
         }while(eof != EOF);
         fclose(fp);
-    }
 
-    for (ii = 0; ii < 3; ii++)
-    {
-        if (assigned[ii] != TRUE)
+        /* ensure that atleast one of each setting type
+         * has appeared in this file */
+        for (ii = 0; ii < 3; ii++)
         {
-            char missing[14];
-            switch(ii)
+            if (assigned[ii] != TRUE)
             {
-                case 0:
-                    strcpy(missing, "maxcorrection");
-                    break;
-                case 1:
-                    strcpy(missing, "dictionary");
-                    break;
-                case 2:
-                    strcpy(missing, "autocorrect");
-                    break;
+                char missing[14];
+                switch(ii)
+                {
+                    case 0:
+                        strcpy(missing, "maxcorrection");
+                        break;
+                    case 1:
+                        strcpy(missing, "dictionary");
+                        break;
+                    case 2:
+                        strcpy(missing, "autocorrect");
+                        break;
+                }
+                status = 1;
+                printf("Missing variable '%s' from spellrc.\n", missing);
             }
-            status = 1;
-            printf("Missing variable '%s' from spellrc.\n", missing);
         }
     }
 

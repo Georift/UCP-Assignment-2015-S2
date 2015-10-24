@@ -23,13 +23,9 @@ int main(int argc, char *argv[])
         char filename[30];
         Settings* inSet = (Settings*)malloc(sizeof(Settings));
         
-        if (getSettings(inSet) != 0)
-        {
-            /* using printf as opposed to perror as it can 
-             * fail even if the file reads sucessfully */
-            printf("Error loading/parsing spellrc.\n");
-        }
-        else
+        /* getSettings will handel outputing any errors
+         * that we need so we can do best case. */
+        if (getSettings(inSet) == 0)
         {
             /* for storing our data in their inital
              * linked list form */
