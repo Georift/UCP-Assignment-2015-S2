@@ -2,35 +2,12 @@
  *  UCP Assignment
  *  Tim Cochrane (17766247)
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "preferences.h"
 #include "spellcheck.h"
+#include "preferences.h"
 #include "check.h"
-
-/* 50 + 1 for the null terminator */
-#define WORD_LEN 51
-
-/**
- * \brief Linked list node to hold words
- */
-typedef struct Word {
-    /** String for holding the actual word */
-    char word[50];
-    /** pointer to the next struct in the linked list */
-    struct Word* next;
-} Word;
-
-/*typedef int (*ActionFunc)(char* word, char* suggestion);*/
-
-int loadFile(Word* head, char* filename);
-void listToArray(Word* head, char* array[], int arrLen);
-void freeLinkedList(Word* head);
-void freeWordArray(char* array[], int arrLen);
-int decision(char* word, char* suggestion);
-void writeFile(char* array[], int arrLen, char* filename);
 
 /**
  * \brief Starting point for the entire program.
@@ -48,8 +25,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        Settings* inSet = NULL;
-        inSet = (Settings*)malloc(sizeof(Settings));
+        Settings* inSet = (Settings*)malloc(sizeof(Settings));
 
         if (getSettings(inSet) != 0)
         {
@@ -106,7 +82,6 @@ int main(int argc, char *argv[])
                 /* ensure no error */
                 if (userCount != -1)
                 {
-                    int ll = 0;
                     ActionFunc choice;
                     printf("Loaded %d words from %s\n", userCount, argv[1]);
 
@@ -119,16 +94,16 @@ int main(int argc, char *argv[])
                     freeLinkedList(userHead);
                     userHead = NULL;
 
-                    /* ALL IS WELL WE HAVE BOTH OUR ARRAYS */
-
-                    /* this is where we want the callback */
+                    /* this is where we want the check to call us */
                     choice = &decision;
 
+                    /* do the actual checking */
                     check(userArray, userCount, dictArray, dictCount,
                             inSet->maxCorrection, choice);
 
                     /* now our userArray contains the corrected words */
-                    writeFile(userArray, userCount, strcat(argv[1], "_new"));
+                    remove(argv[1]); /* remove file before writing */
+                    writeFile(userArray, userCount, argv[1]);
 
 
                     /* ALL THE WORK IS FINISHED START OUR CLEANUP */
@@ -236,7 +211,7 @@ void writeFile(char* array[], int arrLen, char* filename)
     {
         for (ii = 0; ii < arrLen; ii++)
         {
-            fprintf(fp, "%s ", array[ii]);
+            fprintf(fp, "%s\n", array[ii]);
         }
 
         fclose(fp);
@@ -253,17 +228,18 @@ int loadFile(Word* head, char* filename)
 
     if (fp == NULL)
     {
-        /* give perror doesn't support similar formats
+        /* given perror doesn't support similar formats
          * to printf. Make a string and concat filename */
         char errorStr[50] = "Unable to open file ";
         strcat(errorStr, filename);
         perror(errorStr);
 
+        /* let the calling function know we failed */
         count = -1;
     }
     else
     {
-        char readWord[51]; /* given max 50 chars + \0 */
+        char readWord[WORD_LEN]; /* given max 50 chars + \0 */
         int eof;
 
         Word* cur; 

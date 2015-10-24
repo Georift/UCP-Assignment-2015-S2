@@ -17,8 +17,7 @@ int getSettings(Settings* inSet)
     char value[30];
     int eof;
     int status = 0;
-
-    
+    int ii;
 
     /* three ints represent if we have seen
      * each of the options.
@@ -68,8 +67,7 @@ int getSettings(Settings* inSet)
                     }
                     else
                     {
-                        printf("Unknown value '%s' for autocorrect.\n",
-                                                                 value);
+                        printf("Unknown value '%s' for autocorrect.\n", name);
                         status = 1;
                     }
                     inSet->autoCorrect = result;
@@ -85,7 +83,6 @@ int getSettings(Settings* inSet)
         fclose(fp);
     }
 
-    int ii, complete;
     for (ii = 0; ii < 3; ii++)
     {
         if (assigned[ii] != TRUE)

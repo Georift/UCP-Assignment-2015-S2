@@ -1,3 +1,5 @@
+#ifndef PREFERENCES_H
+#define PREFERENCES_H
 /**
  * \brief used to store the spellrc configuration
  */
@@ -11,4 +13,4 @@ typedef struct {
 } Settings;
 
 int getSettings(Settings* inSet);
-
+#endif
