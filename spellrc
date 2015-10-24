@@ -1,3 +1,3 @@
 maxcorrection = 2
-dictionary = dict.txt
-autocorrect = no
+dictionary = simple.dict
+autocorrect = yes

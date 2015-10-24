@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     else
     {
         Settings* inSet = NULL;
-        inSet = (Settings*)malloc(sizeof(Settings**));
+        inSet = (Settings*)malloc(sizeof(Settings));
 
         if (getSettings(inSet) != 0)
         {
@@ -126,12 +126,10 @@ int main(int argc, char *argv[])
                     check(userArray, userCount, dictArray, dictCount,
                             inSet->maxCorrection, choice);
 
-                    #ifdef DEBUG
-                        for (ll = 0; ll < userCount; ll++)
-                        {
-                            printf("'%s'\n", userArray[ll]);
-                        }
-                    #endif 
+                    /* now our userArray contains the corrected words */
+                    
+
+
 
                     /* ALL THE WORK IS FINISHED START OUR CLEANUP */
 
@@ -217,6 +215,7 @@ int decision(char* word, char* suggestion)
         }
     }
 
+    free(inSet); /* TODO wasteful mem usage */
     return doCorrection;
 }
 
@@ -239,7 +238,6 @@ int loadFile(Word* head, char* filename)
         count = -1;
     }
     else
-        
     {
         char readWord[51]; /* given max 50 chars + \0 */
         int eof;
@@ -273,7 +271,7 @@ int loadFile(Word* head, char* filename)
         }while(eof != EOF);
         fclose(fp);
 
-        #ifdef DEBUG
+        #ifdef DEBUG2
             /* print out the contents of the list */
             printf("DEBUG loadFile from %s\n", filename);
             cur = head;

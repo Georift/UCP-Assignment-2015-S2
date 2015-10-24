@@ -18,6 +18,8 @@ int getSettings(Settings* inSet)
     int eof;
     int status = 0;
 
+    
+
     /* three ints represent if we have seen
      * each of the options.
      * [0] = maxCorrect
@@ -34,19 +36,21 @@ int getSettings(Settings* inSet)
     {
         do
         {
-            eof = fscanf(fp, "%s = %s", name, value);
+            /* we can only read a maximum of 29 chars as
+             * dictionary will accept 30, 29 + \0 */
+            eof = fscanf(fp, "%s = %29s", name, value);
 
             if (eof != EOF)
             {
                 if (strcmp(name, "maxcorrection") == 0)
                 {
                     assigned[0] = TRUE;
-                    (*inSet).maxCorrection = atoi(value);
+                    inSet->maxCorrection = atoi(value);
                 }
                 else if (strcmp(name, "dictionary") == 0)
                 {
                     assigned[1] = TRUE;
-                    strcpy((*inSet).dictionary, value);
+                    strcpy(inSet->dictionary, value);
                 }
                 else if (strcmp(name, "autocorrect") == 0)
                 {
@@ -68,7 +72,7 @@ int getSettings(Settings* inSet)
                                                                  value);
                         status = 1;
                     }
-                    (*inSet).autoCorrect = result;
+                    inSet->autoCorrect = result;
                 }
                 else
                 {
