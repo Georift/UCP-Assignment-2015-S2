@@ -1,7 +1,7 @@
 /**
  * \file callback.h
  * \brief Function prototypes for callback functions.
- * @bug No known bugs.
+ * \author Tim Cochrane (17766247)
  */
 #ifndef CALLBACK_H
 #define CALLBACK_H

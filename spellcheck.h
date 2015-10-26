@@ -1,3 +1,8 @@
+/**
+ * \file spellcheck.h
+ * \brief Forward declarations and various function includes
+ * \author Tim Cochrane (17766247)
+ */
 #ifndef SPELLCHECK_H
 #define SPELLCHECK_H
 
@@ -5,36 +10,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+/** \brief C 89 does not have boolean constants. */
 #define FALSE 0
+/** \brief C 89 does not have boolean constants. */
 #define TRUE !FALSE
 
-/* 50 + 1 for the null terminator */
-#define WORD_LEN 51
+/* this must be the first of local headers as
+ * the Word struct declared inside it is used everywhere. */
+#include "list.h"
 
-/**
- *  * \brief Linked list node to hold words
- *   
- *  All files will be copied into the linked list initally
- *  because it allows for a unknown number of elements to be
- *  added.
- *
- */
-typedef struct Word {
-    /** String for holding the actual word */
-    char word[WORD_LEN];
-    /** pointer to the next struct in the linked list */
-    struct Word* next;
-} Word;
-
-/* local header files moved below Word typedef so all when anything
- * requiring Word is included the typedef is already defined. */
 #include "settings.h"
 #include "callback.h"
 #include "check.h"
 #include "file.h"
-
-void listToArray(Word* head, char* array[], int arrLen);
-void freeLinkedList(Word* head);
-void freeWordArray(char* array[], int arrLen);
 
 #endif

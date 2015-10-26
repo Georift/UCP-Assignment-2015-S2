@@ -1,7 +1,8 @@
 /**
  * \file settings.c
  * \brief Handles spellrc file operations.
- * @bug No know bugs.
+ * \author Tim Cochrane (17766247)
+ * @bug No known bugs.
  */
 #include "settings.h"
 

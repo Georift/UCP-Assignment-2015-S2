@@ -1,6 +1,7 @@
 /**
  * \file file.h
  * \brief Contains function prototypes for file operations.
+ * \author Tim Cochrane (17766247)
  */
 #ifndef FILE_H
 #define FILE_H

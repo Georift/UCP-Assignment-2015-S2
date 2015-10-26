@@ -1,3 +1,8 @@
+/**
+ * \file settings.h
+ * \brief Contains function prototypes for settings operations
+ * \author Tim Cochrane (17766247)
+ */
 #ifndef SETTINGS_H
 #define SETTINGS_H
 

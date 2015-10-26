@@ -1,8 +1,8 @@
 /**
  * \file callback.c
  * \brief Contains actionFunc callback functions
- * @bug If a user enters multiple characters for the input
- *      unexpected behaviour occurs.
+ * \author Tim Cochrane (17766247)
+ * @bug No known bugs.
  */
 
 #include "callback.h"
@@ -35,11 +35,20 @@ int decision(char* word, char* suggestion)
         printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
         while (valid == FALSE)
         {
-            /* TODO maybe read as string then pull char to
-             * to prevent dangeling chars */
+            /* not actualy used. Just temp for holding
+             * flushed char */
+            char c;
 
             /* only taking chars */
             scanf("%c", &answer);
+
+            /* to remove the dangeling characters from the input
+             * buffer we can loop getchar to remove it all
+             * source: c-faq.com/stdio/stdinflush2.html */
+            while ( (c = getchar()) != '\n' && c != EOF)
+            {
+                /* do nothing we are just flushing buffer */
+            }
 
             /* although we wanted lower case for sake of usability
              * accept upper case characters as well */
@@ -52,9 +61,6 @@ int decision(char* word, char* suggestion)
                 case 'n': case 'N':
                     doCorrection = 0;
                     valid = TRUE;
-                    break;
-                case '\n':
-                    /* remove dangeling \n char */
                     break;
                 default:
                     /* it will loop as valid remains false */
