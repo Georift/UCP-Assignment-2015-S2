@@ -1,9 +1,22 @@
+/**
+ * \file settings.c
+ * \brief Handles spellrc file operations.
+ * @bug No know bugs.
+ */
 #include "settings.h"
 
 /**
- * \brief Handles the reading of spellrc file
+ * \brief Opens and Parses the spellrc file
  *
- * @param pointer to Settings struct for storing values
+ * Three different configuration options we are looking for:
+ *  - maxcorrection = edit distance between misspelt words and suggestions.
+ *                    Must be a positive integer.
+ *  - dictionary    = location of the dictionary file
+ *  - autocorrect   = (yes/no) If yes automatically change words within the
+ *                    edit distance specified by maxcorrection.
+ *                    If no the user will be prompted for a decision.
+ *
+ * @param inSet Pointers to Settings struct for storing values
  * @return 1 if any errors occur. 0 for success
  */
 int getSettings(Settings* inSet)
@@ -42,6 +55,20 @@ int getSettings(Settings* inSet)
                 {
                     assigned[0] = TRUE;
                     inSet->maxCorrection = atoi(value);
+                    if (inSet->maxCorrection == 0)
+                    {
+                        printf("maxcorrection cannot equal 0.");
+                        printf(" Set autocorrect = no instead.\n");
+                        status = 1;
+                        assigned[0] = FALSE;
+                    }
+                    else if (inSet->maxCorrection < 0)
+                    {
+                        printf("maxcorrection must be a non zero");
+                        printf(" positive integer.");
+                        status = 1;
+                        assigned[0] = FALSE;
+                    }
                 }
                 else if (strcmp(name, "dictionary") == 0)
                 {

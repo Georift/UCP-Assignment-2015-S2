@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings.h"
-#include "check.h"
 
 #define FALSE 0
 #define TRUE !FALSE
@@ -15,22 +13,28 @@
 
 /**
  *  * \brief Linked list node to hold words
- *   */
+ *   
+ *  All files will be copied into the linked list initally
+ *  because it allows for a unknown number of elements to be
+ *  added.
+ *
+ */
 typedef struct Word {
     /** String for holding the actual word */
-    char word[50];
+    char word[WORD_LEN];
     /** pointer to the next struct in the linked list */
     struct Word* next;
 } Word;
-/* TODO sort our struct */
 
+/* local header files moved below Word typedef so all when anything
+ * requiring Word is included the typedef is already defined. */
+#include "settings.h"
+#include "callback.h"
+#include "check.h"
+#include "file.h"
 
-int loadFile(Word* head, char* filename);
 void listToArray(Word* head, char* array[], int arrLen);
 void freeLinkedList(Word* head);
 void freeWordArray(char* array[], int arrLen);
-int decision(char* word, char* suggestion);
-void writeFile(char* array[], int arrLen, char* filename);
-int autoCorrect(char* word, char* suggestion);
 
 #endif

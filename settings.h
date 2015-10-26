@@ -6,7 +6,7 @@
 #include "spellcheck.h"
 
 /**
- * \brief used to store the spellrc configuration
+ * \brief User to store the spellrc configuration
  */
 typedef struct {
     /** Integer value of max difference for acceptable correction */

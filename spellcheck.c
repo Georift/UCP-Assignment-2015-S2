@@ -1,6 +1,11 @@
-/*
- *  UCP Assignment
- *  Tim Cochrane (17766247)
+/**
+ * @file spellcheck.c
+ * @brief Starting point for the entire program.
+ *
+ * Usage: ./spellcheck [USER FILE]
+ *
+ * @author Tim Cochrane (17766247)
+ * @bug No known bugs.
  */
 #include "spellcheck.h"
 
@@ -45,6 +50,8 @@ int main(int argc, char *argv[])
             /* have properly loaded the settings file
              * we can now continute with the spellcheck */
             #ifdef DEBUG
+                /* output what we have stored for the spellrc */
+                printf("DEBUG spellrc settings: \n");
                 printf("%d\n", inSet->maxCorrection);
                 printf("%s\n", inSet->dictionary);
                 printf("%d\n", inSet->autoCorrect);
@@ -120,7 +127,7 @@ int main(int argc, char *argv[])
                 else
                 {
                     /* an error occured during the loading of the user file */
-                    printf("An error occured while loading the user file.");
+                    printf("An error occured while loading the user file\n");
                 }
                
                 /* free the array as we are no loner using it */
@@ -131,7 +138,7 @@ int main(int argc, char *argv[])
             else
             {
                 /* an error occured during the loading of the dictionary */
-                printf("An error occured while loading the dictionary");
+                printf("An error occured while loading the dictionary\n");
             } 
         }
         free(inSet);
@@ -139,154 +146,17 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
-/* this is the callback function for check()
- * it will return true should he word be corrected
- * and false for words that shouldn't be corrected. */
-int decision(char* word, char* suggestion)
-{
-    /* we have autocorrect = no in spellrc
-     * this means we have to ask to user if they
-     * would like us to auto correct each word */
-
-    /* assume that we don't correct */
-    int doCorrection = 0;
-
-    /* for looping until valid */
-    int valid = FALSE;
-    char answer;
-
-    /* obviously we don't want the user to have to
-     * pick between their word and NULL. */
-    if (suggestion != NULL)
-    {
-        /* we aren't allowed to auto correct. Prompt */
-        printf("Is the word '%s' meant to be '%s'? (y/n)", word, suggestion);
-        while (valid == FALSE)
-        {
-            /* TODO maybe read as string then pull char to
-             * to prevent dangeling chars */
-
-            /* only taking chars */
-            scanf("%c", &answer);
-
-            /* although we wanted lower case for sake of usability
-             * accept upper case characters as well */
-            switch(answer)
-            {
-                case 'y': case 'Y':
-                    doCorrection = 1;
-                    valid = TRUE;
-                    break;
-                case 'n': case 'N':
-                    doCorrection = 0;
-                    valid = TRUE;
-                    break;
-                case '\n':
-                    /* remove dangeling \n char */
-                    break;
-                default:
-                    /* it will loop as valid remains false */
-                    printf("Invalid input.\nPlease try again: ");
-            }
-        }
-    }
-    return doCorrection;
-}
-
-/* this function will be called if in spellrc
- * autocorrect = yes. No logic just tell check()
- * we trust it's judgement. */
-int autoCorrect(char* word, char* suggestion)
-{
-    return 1;
-}
-
-/* this function will output our word array to the filename
- * specified. It will only output words seperated by a space
- * as we are not required to preserve formatting */
-void writeFile(char* array[], int arrLen, char* filename)
-{
-    FILE* fp = fopen(filename, "w");
-    int ii;
-
-    if (fp == NULL)
-    {
-        perror("Unable to write to input file");
-    }
-    else
-    {
-        /* for each element of our array output */
-        for (ii = 0; ii < arrLen; ii++)
-        {
-            fprintf(fp, "%s\n", array[ii]);
-        }
-
-        fclose(fp);
-    }
-}
-
-/*
- * will output -1 if failed to run correctly
+/**
+ * \brief Converts a linked list into a dynamicly allocated array.
+ *
+ * The array pointer char* array[] should already be allocated
+ * with a size = (sizeof(char**) * arrLen).
+ *
+ * @param head Head node of the linked list.
+ * @param array Destination array pointer.
+ * @param arrLen Count of elements inside array.
+ * @return void
  */
-int loadFile(Word* head, char* filename)
-{
-    FILE* fp = fopen(filename, "r"); 
-    int count = 0;
-
-    if (fp == NULL)
-    {
-        /* given perror doesn't support similar formats
-         * to printf. Make a string and concat filename */
-        char errorStr[50] = "Unable to open file ";
-        strcat(errorStr, filename);
-        perror(errorStr);
-
-        /* let the calling function know we failed */
-        count = -1;
-    }
-    else
-    {
-        char readWord[WORD_LEN]; /* given max 50 chars + \0 */
-        int eof;
-
-        Word* cur; 
-        cur = head; /* head will not contain any words */
-
-        /* so we know how much to allocate later */
-        count = 0;
-        do
-        {
-            /* try reading the next word, fscanf will 
-             * handle any amount of whitespace*/
-            eof = fscanf(fp, "%s", readWord);
-
-            /* only create the next node if valid read */
-            if (eof != EOF)
-            {
-                /* allocate out next node in the list */
-                cur->next = (Word*)malloc(sizeof(Word));
-                cur = cur->next;
-
-                /* make sure we have the end marker */
-                cur->next = NULL;
-
-                /* save our word */
-                strcpy(cur->word, readWord);
-
-                count++;
-            }
-        }while(eof != EOF);
-        fclose(fp);
-      }
-
-    return count;
-}
-
-/* given a link list head it will loop through
- * and place it into a dynmaically allocated array
- * the link list must contain atleast arrLen elements
- * and the dynamic array must be atleast arrLen long */
 void listToArray(Word* head, char* array[], int arrLen)
 {
     Word* cur = head;
@@ -303,7 +173,13 @@ void listToArray(Word* head, char* array[], int arrLen)
     }
 }
 
-
+/**
+ * \brief Frees all the elements within a dynamically allocated array.
+ *
+ * @param array Array to be freed
+ * @param arrLen Number of elements inside the array
+ * @return void
+ */
 void freeWordArray(char* array[], int arrLen)
 {
     int ii;
@@ -313,6 +189,16 @@ void freeWordArray(char* array[], int arrLen)
     }
 }
 
+/**
+ * \brief Frees the elements in a linked list before freeing the head.
+ *
+ * It is important that after this function is called the passed in pointer
+ * is assigned null. If you try to refree the head without doing this it can
+ * cause errors to be produced in valgrind.
+ *
+ * @param head Pointer to the head node of the linked list.
+ * @return void
+ */
 void freeLinkedList(Word* head)
 {
     Word* cur = head;
