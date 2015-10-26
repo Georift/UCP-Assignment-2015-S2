@@ -40,4 +40,4 @@ package :
 	make clean;
 	mkdir package;
 	tar -cvzf package/UCP_Assignment_Tim_Cochrane_17766247.tar.gz * .git\
-		--exclude='package'
+		--exclude='package' --exclude="dict.txt"
